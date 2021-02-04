@@ -1,3 +1,14 @@
+function _createModalFooter(buttons = []){
+    if (buttons.length){
+        return document.createElement('div')
+    }
+    const wrap = document.createElement('div')
+    wrap.classList.add('modal-footer')
+
+    return wrap
+}
+
+
 const _createModal = (options) => {
     const Default_width = '600px'
     const modal = document.createElement('div')
@@ -9,16 +20,14 @@ const _createModal = (options) => {
                     <span class="modal-title">${options.title || 'There is no Title'}</span>
                     ${ options.closable ? `<span class="modal-close" data-close="true">&times;</span>`: ''}
                 </div>
-                <div class="modal-body">
+                <div class="modal-body" data-content>
                     ${options.content || ''}
-                </div>
-                <div class="modal-footer">
-                    <button>OK</button>
-                    <button>Cancel</button>
                 </div>
             </div>
         </div>
     `)
+    const footer = _createModalFooter(options.footerButtons)
+    
     document.body.append(modal)
     return modal
 }
@@ -59,6 +68,9 @@ $.modal = function(options){
             $modal.parentNode.removeChild($modal)
             $modal.removeEventListener('click', listener)
             destroyed = true
+        },
+        setContent(html) {
+            $modal.querySelector('[data-content]').innerHTML = html
         }
     })
 }
