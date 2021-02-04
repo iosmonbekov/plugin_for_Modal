@@ -89,3 +89,7 @@
     font-size: .9rem;
     padding: 5px 15px;
 }
+
+.card img {
+    height: 300px;
+}
