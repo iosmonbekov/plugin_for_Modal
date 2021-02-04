@@ -1,19 +1,20 @@
 const _createModal = (options) => {
+    const Default_width = '600px'
     const modal = document.createElement('div')
     modal.classList.add('imodal')
     modal.insertAdjacentHTML('afterbegin', `
-        <div class="modal-overlay">
-            <div class="modal-window">
+        <div class="modal-overlay" data-close="true">
+            <div class="modal-window" style="width: ${options.width || Default_width}">
                 <div class="modal-header">
-                    <span class="modal-title">${options.title}</span>
-                    <span class="modal-close" onclick=${"exit()"}>&times;</span>
+                    <span class="modal-title">${options.title || 'There is no Title'}</span>
+                    ${ options.closable ? `<span class="modal-close" data-close="true">&times;</span>`: ''}
                 </div>
                 <div class="modal-body">
-                    ${options.content}
+                    ${options.content || ''}
                 </div>
                 <div class="modal-footer">
                     <button>OK</button>
-                    <button onclick=${"exit()"}>Cancel</button>
+                    <button>Cancel</button>
                 </div>
             </div>
         </div>
@@ -22,25 +23,16 @@ const _createModal = (options) => {
     return modal
 }
 
-function exit(e){
-    const modal = document.getElementsByClassName('imodal')
-    modal[0].classList.remove('open')
-    modal[0].classList.add('hide')
-    setTimeout(() => {
-        modal[0].classList.remove('hide')
-    }, 200)  
-}
-
-
 
 $.modal = function(options){
     const animation_speed = 200;
     const $modal = _createModal(options);
     let closing = false;
+    let destroyed = false;
 
-    return {
-        title: options.title,
+    const modal = {
         open() {
+            if (destroyed) return 
             !closing && $modal.classList.add('open')
         },
         close() {
@@ -52,6 +44,21 @@ $.modal = function(options){
                 closing = false
             }, animation_speed)
         },
-        destroy() {},
     }
+    
+    const listener = event => {
+        if (event.target.dataset.close){
+            modal.close()
+        }
+    }
+
+    $modal.addEventListener('click', listener)
+
+    return Object.assign(modal, {
+        destroy() {
+            $modal.parentNode.removeChild($modal)
+            $modal.removeEventListener('click', listener)
+            destroyed = true
+        }
+    })
 }
